@@ -39,8 +39,8 @@ dependencies {
     api "androidx.appcompat:appcompat:$xVersion"
     api "androidx.fragment:fragment-ktx:$xFragment"
 
-    api 'com.github.TooLazyy:mad-navigation:1.0.0'
-    api 'com.github.TooLazyy:mad-basic:v1.0.1'
+    api "com.github.TooLazyy:mad-navigation:$madNavigationVersion"
+    api "com.github.TooLazyy:mad-basic:$madBasicVersion"
 
     api "ru.surfstudio.android:easyadapter:$easyAdapterVersion"
 
