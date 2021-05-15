@@ -7,6 +7,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.withContext
 import ru.wearemad.mad_base.coroutines.RequestResult
+import ru.wearemad.mad_core.lifecycle.LifecycleAction
+import ru.wearemad.mad_core.lifecycle.ViewLifecycleState
 import kotlin.coroutines.CoroutineContext
 
 abstract class BaseVm<S : BaseVmState>(
@@ -16,6 +18,9 @@ abstract class BaseVm<S : BaseVmState>(
     CoroutineScope {
 
     private val parentJob = SupervisorJob()
+
+    protected var lifecycleState: ViewLifecycleState = ViewLifecycleState.None
+    private val pendingActions = mutableListOf<LifecycleAction>()
 
     override val coroutineContext: CoroutineContext = dependencies.dispatchers.default() + parentJob
 
@@ -59,5 +64,48 @@ abstract class BaseVm<S : BaseVmState>(
 
     open fun exit() {
         dependencies.router.exit()
+    }
+
+    fun lifecycleStateChanged(newState: ViewLifecycleState) {
+        lifecycleState = newState
+        checkPendingActions()
+    }
+
+    protected fun clearPendingActions() {
+        pendingActions.clear()
+    }
+
+    protected fun runWhenCreated(action: () -> Unit) {
+        runWhen(ViewLifecycleState.Created, action)
+    }
+
+    protected fun runWhenResumed(action: () -> Unit) {
+        runWhen(ViewLifecycleState.Resumed, action)
+    }
+
+    protected fun runWhenStarted(action: () -> Unit) {
+        runWhen(ViewLifecycleState.Started, action)
+    }
+
+    protected fun runWhen(state: ViewLifecycleState, action: () -> Unit) {
+        if (lifecycleState.checkLifecycleFit(state)) {
+            action()
+            return
+        }
+        pendingActions.add(LifecycleAction(state, action))
+    }
+
+    private fun checkPendingActions() {
+        if (pendingActions.isEmpty()) {
+            return
+        }
+        val iterator = pendingActions.listIterator()
+        while (iterator.hasNext()) {
+            val item = iterator.next()
+            if (lifecycleState.checkLifecycleFit(item.targetState)) {
+                item.action()
+                iterator.remove()
+            }
+        }
     }
 }

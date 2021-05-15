@@ -1,4 +1,4 @@
-package ru.wearemad.mad_core.activity.activity_result
+package ru.wearemad.mad_core.activity.fragment_result
 
 import android.os.Bundle
 import androidx.annotation.MainThread
@@ -10,7 +10,7 @@ import androidx.lifecycle.OnLifecycleEvent
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
-class ActivityFragmentResultListenerDelegate(
+class FragmentResultListenerDelegate(
     listener: (requestKey: String, result: Bundle) -> Unit,
     private val requestKey: String,
     private val target: Fragment
@@ -71,4 +71,4 @@ class ActivityFragmentResultListenerDelegate(
 fun Fragment.activityFragmentResult(
     requestKey: String,
     listener: (requestKey: String, result: Bundle) -> Unit
-): ActivityFragmentResultListenerDelegate = ActivityFragmentResultListenerDelegate(listener, requestKey, this)
+): FragmentResultListenerDelegate = FragmentResultListenerDelegate(listener, requestKey, this)
